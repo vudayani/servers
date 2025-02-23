@@ -169,6 +169,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: "get_pull_request_files",
         description: "Get the list of files changed in a pull request in a GitHub repository",
         inputSchema: zodToJsonSchema(pulls.GetPullRequestFilesSchema),
+      },
+      {
+        name: "get_pull_request_comments",
+        description: "Get the review comments on a pull request",
+        inputSchema: zodToJsonSchema(pulls.GetPullRequestCommentsSchema),
+      },
+      {
+        name: "get_pull_request_reviews",
+        description: "Get the reviews on a pull request",
+        inputSchema: zodToJsonSchema(pulls.GetPullRequestReviewsSchema),
       }
     ],
   };
@@ -388,6 +398,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const result = await pulls.getPullRequestStatus(owner, repo, pull_number);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+        };
+      }
+
+      case "get_pull_request_comments": {
+        const args = pulls.GetPullRequestCommentsSchema.parse(request.params.arguments);
+        const { owner, repo, pull_number } = args;
+        const comments = await pulls.getPullRequestComments(owner, repo, pull_number);
+        return {
+          content: [{ type: "text", text: JSON.stringify(comments, null, 2) }],
+        };
+      }
+
+      case "get_pull_request_reviews": {
+        const args = pulls.GetPullRequestReviewsSchema.parse(request.params.arguments);
+        const { owner, repo, pull_number } = args;
+        const reviews = await pulls.getPullRequestReviews(owner, repo, pull_number);
+        return {
+          content: [{ type: "text", text: JSON.stringify(reviews, null, 2) }],
         };
       }
 
